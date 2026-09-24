@@ -3,14 +3,44 @@
 @tailwind utilities;
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #F8F8F0;
+  --foreground: #282824;
+  --warm-ivory: #F0E8E0;
+  --soft-cream: #F8F8F0;
+  --off-white: #F0F0E8;
+  --light-beige: #E8E0D0;
+  --terracotta: #C87858;
+  --soft-terracotta: #D98A68;
+  --warm-gray: #D8D8D0;
+  --light-gray: #E8E8E8;
+  --charcoal: #282824;
+  --muted-gray: #88857D;
+  --soft-green: #75A86B;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: var(--charcoal, #282824);
+  background-color: var(--soft-cream, #F8F8F0);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   margin: 0;
   padding: 0;
+}
+
+/* Custom subtle scrollbar in warm theme colors */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F0E8E0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D8D8D0;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #C87858;
 }

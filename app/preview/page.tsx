@@ -8,9 +8,9 @@ import { buildProjectScaffold } from "@/lib/projectScaffold";
 const SandpackPreview = dynamic(() => import("@/components/SandpackPreview"), {
   ssr: false,
   loading: () => (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-white text-slate-400 gap-3">
-      <div className="w-10 h-10 rounded-full border-2 border-blue-500 border-t-transparent animate-spin"></div>
-      <p className="text-sm font-medium text-slate-600">Loading Fullscreen Live Preview...</p>
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#F8F8F0] text-[#88857D] gap-3">
+      <div className="w-10 h-10 rounded-full border-2 border-[#C87858] border-t-transparent animate-spin"></div>
+      <p className="text-sm font-medium text-[#282824]">Loading Fullscreen Live Preview...</p>
     </div>
   ),
 });
@@ -263,20 +263,27 @@ export default function PreviewPage() {
       const targetUrl = `https://github.com/${username}/${cleanRepo}`;
       setPushSuccessUrl(targetUrl);
     } catch (err: any) {
-      setPushError(err.message || "Failed to push repository to GitHub");
+      const msg = err.message || "Failed to push repository to GitHub";
+      if (msg.toLowerCase().includes("resource not accessible")) {
+        setPushError(
+          "GitHub Permission Error: Your token lacks the required permissions. Please generate a 'Tokens (classic)' with the 'repo' checkbox selected, or for Fine-grained tokens set 'Contents: Read and write' with access to 'All repositories'."
+        );
+      } else {
+        setPushError(msg);
+      }
     } finally {
       setIsPushing(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans">
-      {/* White Top Header Bar */}
-      <header className="border-b border-slate-200/80 bg-white px-6 py-3.5 flex items-center justify-between shadow-sm sticky top-0 z-40">
+    <div className="min-h-screen bg-[#F8F8F0] text-[#282824] flex flex-col font-sans">
+      {/* Top Header Bar */}
+      <header className="border-b border-[#E8E0D0] bg-[#F0E8E0] px-6 py-3.5 flex items-center justify-between shadow-sm sticky top-0 z-40">
         <div className="flex items-center gap-3">
-          <span className="font-extrabold text-slate-900 text-base tracking-tight">DevForge Live Preview</span>
-          <span className="px-2.5 py-0.5 text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-bold flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span className="font-extrabold text-[#282824] text-base tracking-tight">DevForge Live Preview</span>
+          <span className="px-2.5 py-0.5 text-[11px] bg-[#75A86B]/15 text-[#75A86B] border border-[#75A86B]/30 rounded-full font-bold flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#75A86B] animate-pulse"></span>
             Live
           </span>
         </div>
@@ -284,7 +291,7 @@ export default function PreviewPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsGithubModalOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition shadow-sm flex items-center gap-2 active:scale-95 cursor-pointer"
+            className="px-3.5 py-2 rounded-xl bg-[#C87858] hover:bg-[#D98A68] text-white text-xs font-bold transition shadow-sm flex items-center gap-2 active:scale-95 cursor-pointer"
           >
             <Github className="w-4 h-4" />
             <span>Push to GitHub</span>
@@ -292,7 +299,7 @@ export default function PreviewPage() {
 
           <button
             onClick={() => window.close()}
-            className="text-xs font-semibold px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition shadow-sm flex items-center gap-1.5 cursor-pointer"
+            className="text-xs font-semibold px-3.5 py-2 rounded-xl bg-[#F0F0E8] hover:bg-[#E8E0D0] text-[#282824] border border-[#D8D8D0] transition shadow-sm flex items-center gap-1.5 cursor-pointer"
           >
             <span>Close Tab</span>
             <X className="w-3.5 h-3.5" />
@@ -307,45 +314,45 @@ export default function PreviewPage() {
 
       {/* Push to GitHub Modal Popup */}
       {isGithubModalOpen && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full p-6 space-y-5 relative">
+        <div className="fixed inset-0 bg-[#282824]/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in">
+          <div className="bg-[#F0E8E0] rounded-3xl border border-[#E8E0D0] shadow-2xl max-w-md w-full p-6 space-y-5 relative">
             <button
               onClick={() => setIsGithubModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-xs font-bold w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center transition"
+              className="absolute top-4 right-4 text-[#88857D] hover:text-[#282824] text-xs font-bold w-8 h-8 rounded-full bg-[#F0F0E8] flex items-center justify-center transition cursor-pointer"
             >
               ✕
             </button>
 
-            <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
-              <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-md">
+            <div className="flex items-center gap-3 border-b border-[#E8E0D0] pb-3">
+              <div className="w-10 h-10 rounded-2xl bg-[#282824] text-white flex items-center justify-center shadow-md">
                 <Github className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-extrabold text-slate-900">Push to GitHub</h3>
-                <p className="text-xs text-slate-500">Deploy generated code to your GitHub account</p>
+                <h3 className="text-base font-extrabold text-[#282824]">Push to GitHub</h3>
+                <p className="text-xs text-[#88857D]">Deploy generated code to your GitHub account</p>
               </div>
             </div>
 
             {pushSuccessUrl ? (
-              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-3">
-                <div className="flex items-center gap-2 text-xs font-bold text-emerald-800">
-                  <Check className="w-4 h-4 text-emerald-600" />
+              <div className="p-4 rounded-2xl bg-[#75A86B]/15 border border-[#75A86B]/30 text-[#282824] space-y-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#75A86B]">
+                  <Check className="w-4 h-4 text-[#75A86B]" />
                   <span>Code Pushed Successfully!</span>
                 </div>
-                <p className="text-xs text-slate-600">Your full codebase has been pushed to GitHub repository:</p>
-                <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-emerald-300">
+                <p className="text-xs text-[#88857D]">Your full codebase has been pushed to GitHub repository:</p>
+                <div className="flex items-center gap-2 bg-[#F0F0E8] p-2 rounded-xl border border-[#75A86B]/40">
                   <input
                     type="text"
                     readOnly
                     value={pushSuccessUrl}
-                    className="flex-1 text-xs text-slate-800 outline-none bg-transparent font-mono"
+                    className="flex-1 text-xs text-[#282824] outline-none bg-transparent font-mono"
                   />
                 </div>
                 <a
                   href={pushSuccessUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition"
+                  className="w-full py-2.5 bg-[#75A86B] hover:bg-[#68995e] text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition"
                 >
                   <span>Open GitHub Repository</span>
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -354,20 +361,20 @@ export default function PreviewPage() {
             ) : (
               <form onSubmit={handlePushToGithub} className="space-y-4">
                 {/* Step-by-step PAT Instructions Box */}
-                <div className="p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 text-xs text-slate-700 space-y-1.5">
-                  <div className="flex items-center gap-1.5 text-blue-900 font-bold">
-                    <Info className="w-4 h-4 text-blue-600 shrink-0" />
+                <div className="p-3.5 rounded-2xl bg-[#F0F0E8] border border-[#E8E0D0] text-xs text-[#282824] space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-[#282824] font-bold">
+                    <Info className="w-4 h-4 text-[#C87858] shrink-0" />
                     <span>How to generate your GitHub PAT:</span>
                   </div>
-                  <ol className="list-decimal list-inside space-y-1 text-[11px] text-slate-600 pl-1">
+                  <ol className="list-decimal list-inside space-y-1 text-[11px] text-[#88857D] pl-1">
                     <li>Go to GitHub → Settings → Developer Settings → Personal Access Tokens.</li>
-                    <li>Generate a token and ensure the <strong className="text-slate-900 font-semibold">'repo' scope</strong> (Full control of repositories) is checked.</li>
+                    <li>Generate a token and ensure the <strong className="text-[#282824] font-semibold">'repo' scope</strong> (Full control of repositories) is checked.</li>
                   </ol>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    <Key className="w-3.5 h-3.5 text-blue-600" />
+                  <label className="text-xs font-bold text-[#282824] flex items-center gap-1.5">
+                    <Key className="w-3.5 h-3.5 text-[#C87858]" />
                     <span>GitHub Personal Access Token (PAT) *</span>
                   </label>
                   <input
@@ -376,13 +383,13 @@ export default function PreviewPage() {
                     value={githubToken}
                     onChange={(e) => setGithubToken(e.target.value)}
                     placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-blue-500 focus:bg-white transition"
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#F0F0E8] border border-[#E8E8E8] text-sm text-[#282824] placeholder-[#88857D] outline-none focus:border-[#C87858] transition"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    <FolderGit2 className="w-3.5 h-3.5 text-blue-600" />
+                  <label className="text-xs font-bold text-[#282824] flex items-center gap-1.5">
+                    <FolderGit2 className="w-3.5 h-3.5 text-[#C87858]" />
                     <span>Repository Name *</span>
                   </label>
                   <input
@@ -391,19 +398,19 @@ export default function PreviewPage() {
                     value={repoName}
                     onChange={(e) => setRepoName(e.target.value)}
                     placeholder="e.g. my-awesome-web-app"
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-blue-500 focus:bg-white transition"
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#F0F0E8] border border-[#E8E8E8] text-sm text-[#282824] placeholder-[#88857D] outline-none focus:border-[#C87858] transition"
                   />
                 </div>
 
                 {isPushing && (
-                  <div className="space-y-2 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl animate-in fade-in">
-                    <div className="flex justify-between items-center text-xs font-semibold text-slate-700">
+                  <div className="space-y-2 p-3.5 bg-[#F0F0E8] border border-[#E8E0D0] rounded-2xl animate-in fade-in">
+                    <div className="flex justify-between items-center text-xs font-semibold text-[#282824]">
                       <span className="truncate pr-2">{pushProgressStatus}</span>
-                      <span className="font-mono text-[11px] text-blue-600 font-bold shrink-0">{pushProgressPercent}%</span>
+                      <span className="font-mono text-[11px] text-[#C87858] font-bold shrink-0">{pushProgressPercent}%</span>
                     </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                    <div className="w-full bg-[#E8E0D0] rounded-full h-2 overflow-hidden">
                       <div
-                        className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full transition-all duration-300"
+                        className="bg-[#C87858] h-2 rounded-full transition-all duration-300"
                         style={{ width: `${pushProgressPercent}%` }}
                       ></div>
                     </div>
@@ -419,7 +426,7 @@ export default function PreviewPage() {
                 <button
                   type="submit"
                   disabled={!githubToken.trim() || !repoName.trim() || isPushing}
-                  className="w-full py-3 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-900 hover:to-black text-white font-bold text-xs rounded-xl shadow-md disabled:opacity-50 transition active:scale-95 flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-[#C87858] hover:bg-[#D98A68] text-white font-bold text-xs rounded-xl shadow-md disabled:opacity-50 transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-[#C87858]/20"
                 >
                   {isPushing ? (
                     <>

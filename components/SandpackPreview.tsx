@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { SandpackProvider, SandpackPreview, SandpackCodeEditor, SandpackLayout } from "@codesandbox/sandpack-react";
+import { sanitizeGeneratedCode } from "@/lib/utils";
 
 interface CodePreviewProps {
   code?: string;
@@ -15,31 +16,31 @@ export default function App() {
   const [count, setCount] = useState<number>(0);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-6 font-sans">
-      <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center">
-        <div className="w-16 h-16 bg-indigo-600/20 text-indigo-400 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 border border-indigo-500/30">
+    <div className="min-h-screen bg-[#F8F8F0] text-[#282824] flex flex-col items-center justify-center p-6 font-sans">
+      <div className="bg-[#F0E8E0] border border-[#E8E0D0] p-8 rounded-3xl shadow-xl max-w-md w-full text-center">
+        <div className="w-16 h-16 bg-[#C87858]/15 text-[#C87858] rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 border border-[#C87858]/25">
           ⚡
         </div>
-        <h1 className="text-2xl font-bold text-white mb-2">DevForge AI Workspace</h1>
-        <p className="text-slate-400 text-sm mb-6">
+        <h1 className="text-2xl font-bold text-[#282824] mb-2">DevForge AI Workspace</h1>
+        <p className="text-[#88857D] text-sm mb-6">
           Your live React component workspace is ready. Type a prompt to generate interactive components!
         </p>
 
-        <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 mb-6 flex items-center justify-between">
-          <span className="text-sm font-semibold text-slate-300">Counter State:</span>
-          <span className="text-2xl font-mono font-bold text-indigo-400">{count}</span>
+        <div className="bg-[#F0F0E8] p-4 rounded-2xl border border-[#E8E8E8] mb-6 flex items-center justify-between">
+          <span className="text-sm font-semibold text-[#88857D]">Counter State:</span>
+          <span className="text-2xl font-mono font-bold text-[#C87858]">{count}</span>
         </div>
 
         <div className="flex gap-3">
           <button
             onClick={() => setCount((c) => c + 1)}
-            className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm rounded-xl transition shadow-lg shadow-indigo-600/30 active:scale-95"
+            className="flex-1 py-2.5 bg-[#C87858] hover:bg-[#D98A68] text-white font-semibold text-sm rounded-xl transition shadow-md shadow-[#C87858]/25 active:scale-95"
           >
             Increment +1
           </button>
           <button
             onClick={() => setCount(0)}
-            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm rounded-xl transition active:scale-95"
+            className="px-4 py-2.5 bg-[#F0F0E8] hover:bg-[#E8E0D0] text-[#282824] font-semibold text-sm rounded-xl transition border border-[#D8D8D0] active:scale-95"
           >
             Reset
           </button>
@@ -54,8 +55,7 @@ export default function CustomSandpackPreview({ code, codeOnly = false, previewO
 
   const { cleanCode, isHtml, htmlDoc } = useMemo(() => {
     let raw = code && code.trim().length > 0 ? code : DEFAULT_CODE;
-    // Strip markdown codeblock backticks if present
-    raw = raw.replace(/^```[a-zA-Z]*\n?/, "").replace(/\n?```$/, "").trim();
+    raw = sanitizeGeneratedCode(raw);
 
     const isHtmlDoc = /^\s*<!DOCTYPE html/i.test(raw) || /^\s*<html/i.test(raw);
 
@@ -74,7 +74,7 @@ export default function CustomSandpackPreview({ code, codeOnly = false, previewO
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    body { margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; background-color: #F8F8F0; color: #282824; }
   </style>
 </head>
 <body>
@@ -86,7 +86,7 @@ export default function CustomSandpackPreview({ code, codeOnly = false, previewO
       const root = ReactDOM.createRoot(document.getElementById('root'));
       root.render(<App />);
     } else {
-      document.getElementById('root').innerHTML = '<div style="padding:20px;font-family:sans-serif;">Component ready</div>';
+      document.getElementById('root').innerHTML = '<div style="padding:20px;font-family:sans-serif;color:#282824;">Component ready</div>';
     }
   </script>
 </body>
@@ -98,16 +98,16 @@ export default function CustomSandpackPreview({ code, codeOnly = false, previewO
   // If the generated code is pure HTML OR if instant iframe mode is enabled, render the native iframe directly
   if (isHtml || useInstantIframe) {
     return (
-      <div className="w-full h-full min-h-[600px] rounded-2xl overflow-hidden border border-blue-200/90 bg-white shadow-xl flex flex-col">
-        <div className="px-4 py-2 bg-slate-100 border-b border-slate-200 flex items-center justify-between text-xs text-slate-600 font-semibold">
+      <div className="w-full h-full min-h-[600px] rounded-3xl overflow-hidden border border-[#E8E0D0] bg-[#F0F0E8] shadow-xl flex flex-col">
+        <div className="px-4 py-2.5 bg-[#F0E8E0] border-b border-[#E8E0D0] flex items-center justify-between text-xs text-[#282824] font-semibold">
           <span className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="w-2 h-2 rounded-full bg-[#75A86B] animate-pulse"></span>
             Instant Live Preview (HTML / Browser Compiled)
           </span>
           {!isHtml && (
             <button
               onClick={() => setUseInstantIframe(false)}
-              className="text-blue-600 hover:underline font-bold cursor-pointer"
+              className="text-[#C87858] hover:underline font-bold cursor-pointer"
             >
               Switch to Sandpack IDE
             </button>
@@ -124,12 +124,12 @@ export default function CustomSandpackPreview({ code, codeOnly = false, previewO
   }
 
   return (
-    <div className="w-full rounded-2xl overflow-hidden border border-blue-200/90 bg-[#F0F7FF] shadow-xl shadow-blue-900/5 flex flex-col">
-      <div className="px-4 py-1.5 bg-blue-50/90 border-b border-blue-200/80 flex items-center justify-between text-[11px] text-slate-600 font-medium">
+    <div className="w-full rounded-3xl overflow-hidden border border-[#E8E0D0] bg-[#F0F0E8] shadow-xl flex flex-col">
+      <div className="px-4 py-2 bg-[#F0E8E0] border-b border-[#E8E0D0] flex items-center justify-between text-[11px] text-[#282824] font-medium">
         <span>DevForge Sandpack Bundler</span>
         <button
           onClick={() => setUseInstantIframe(true)}
-          className="text-blue-600 font-bold hover:underline cursor-pointer"
+          className="text-[#C87858] font-bold hover:underline cursor-pointer"
         >
           Taking long? Load Instant Preview ⚡
         </button>
@@ -169,8 +169,8 @@ body {
   margin: 0;
   padding: 0;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #F8F8F0;
+  color: #282824;
 }`,
         }}
         customSetup={{
@@ -187,9 +187,9 @@ body {
           initMode: "immediate",
         }}
       >
-        <SandpackLayout className="!border-none !bg-[#F0F7FF]">
+        <SandpackLayout className="!border-none !bg-[#F0F0E8]">
           {previewOnly ? (
-            <div className="w-full h-[calc(100vh-100px)] min-h-[600px] bg-[#F0F7FF]">
+            <div className="w-full h-[calc(100vh-100px)] min-h-[600px] bg-[#F0F0E8]">
               <SandpackPreview
                 showRefreshButton
                 showOpenInCodeSandbox={false}
@@ -197,10 +197,10 @@ body {
               />
             </div>
           ) : codeOnly ? (
-            <div className="w-full min-h-[550px] bg-[#F0F7FF] overflow-hidden">
-              <div className="px-4 py-2.5 bg-blue-100/70 border-b border-blue-200/80 text-xs font-mono text-slate-700 font-semibold flex items-center justify-between">
+            <div className="w-full min-h-[550px] bg-[#F0F0E8] overflow-hidden">
+              <div className="px-4 py-2.5 bg-[#F0E8E0] border-b border-[#E8E0D0] text-xs font-mono text-[#282824] font-semibold flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span className="w-2 h-2 rounded-full bg-[#75A86B] animate-pulse"></span>
                   Generated Codebase (/App.tsx, index.html)
                 </span>
               </div>
@@ -213,12 +213,12 @@ body {
               />
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 w-full min-h-[550px] border-none bg-[#F0F7FF]">
+            <div className="grid grid-cols-1 lg:grid-cols-2 w-full min-h-[550px] border-none bg-[#F0F0E8]">
               {/* Editor Panel */}
-              <div className="border-b lg:border-b-0 lg:border-r border-blue-200/80 bg-[#F0F7FF] h-[550px] overflow-hidden">
-                <div className="px-4 py-2.5 bg-blue-100/70 border-b border-blue-200/80 text-xs font-mono text-slate-700 font-semibold flex items-center justify-between">
+              <div className="border-b lg:border-b-0 lg:border-r border-[#E8E0D0] bg-[#F0F0E8] h-[550px] overflow-hidden">
+                <div className="px-4 py-2.5 bg-[#F0E8E0] border-b border-[#E8E0D0] text-xs font-mono text-[#282824] font-semibold flex items-center justify-between">
                   <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span className="w-2 h-2 rounded-full bg-[#75A86B] animate-pulse"></span>
                     App.tsx (TypeScript Source)
                   </span>
                 </div>
@@ -231,10 +231,10 @@ body {
                 />
               </div>
               {/* Live Preview Panel */}
-              <div className="bg-[#F0F7FF] h-[550px] overflow-hidden">
-                <div className="px-4 py-2.5 bg-blue-100/70 border-b border-blue-200/80 text-xs font-mono text-slate-700 font-semibold flex items-center justify-between">
+              <div className="bg-[#F0F0E8] h-[550px] overflow-hidden">
+                <div className="px-4 py-2.5 bg-[#F0E8E0] border-b border-[#E8E0D0] text-xs font-mono text-[#282824] font-semibold flex items-center justify-between">
                   <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                    <span className="w-2 h-2 rounded-full bg-[#C87858]"></span>
                     Live Output Preview
                   </span>
                 </div>

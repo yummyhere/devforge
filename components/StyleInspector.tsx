@@ -19,13 +19,13 @@ interface StyleInspectorProps {
 }
 
 const PRESET_COLORS = [
+  { name: "Terracotta", hex: "#C87858" },
+  { name: "Soft Terracotta", hex: "#D98A68" },
+  { name: "Soft Green", hex: "#75A86B" },
+  { name: "Charcoal", hex: "#282824" },
+  { name: "Warm Ivory", hex: "#F0E8E0" },
   { name: "Blue", hex: "#3b82f6" },
   { name: "Emerald", hex: "#10b981" },
-  { name: "Purple", hex: "#8b5cf6" },
-  { name: "Rose", hex: "#f43f5e" },
-  { name: "Amber", hex: "#f59e0b" },
-  { name: "Indigo", hex: "#6366f1" },
-  { name: "Slate", hex: "#0f172a" },
 ];
 
 const RADIUS_OPTIONS: Array<{ id: ThemeTokens["radius"]; label: string }> = [
@@ -51,27 +51,27 @@ export default function StyleInspector({
 }: StyleInspectorProps) {
   if (!isOpen) return null;
 
-  const currentPrimary = themeTokens.primaryColor || "#3b82f6";
+  const currentPrimary = themeTokens.primaryColor || "#C87858";
   const currentRadius = themeTokens.radius || "md";
   const currentFontScale = themeTokens.fontScale || "comfortable";
 
   return (
-    <div className="w-full bg-white border border-slate-200 rounded-3xl p-6 shadow-xl space-y-6">
+    <div className="w-full bg-[#F0E8E0] border border-[#E8E0D0] rounded-3xl p-6 shadow-xl space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+      <div className="flex items-center justify-between border-b border-[#E8E0D0] pb-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+          <div className="w-9 h-9 rounded-2xl bg-[#C87858]/15 text-[#C87858] flex items-center justify-center font-bold">
             <Sliders className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-black text-slate-900 text-sm">{t(locale, "inspector.title")}</h3>
-            <p className="text-[11px] text-slate-500">Visual No-Code Theme Tokens</p>
+            <h3 className="font-black text-[#282824] text-sm">{t(locale, "inspector.title")}</h3>
+            <p className="text-[11px] text-[#88857D]">Visual No-Code Theme Tokens</p>
           </div>
         </div>
         {onClose && (
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition"
+            className="p-1.5 text-[#88857D] hover:text-[#282824] hover:bg-[#E8E0D0] rounded-full transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -80,8 +80,8 @@ export default function StyleInspector({
 
       {/* Primary Color Token */}
       <div className="space-y-3">
-        <label className="text-xs font-bold text-slate-800 flex items-center gap-2">
-          <Palette className="w-4 h-4 text-blue-600" />
+        <label className="text-xs font-bold text-[#282824] flex items-center gap-2">
+          <Palette className="w-4 h-4 text-[#C87858]" />
           {t(locale, "inspector.primaryColor")}
         </label>
         <div className="flex flex-wrap items-center gap-2.5">
@@ -91,7 +91,7 @@ export default function StyleInspector({
               onClick={() => onChange({ ...themeTokens, primaryColor: col.hex })}
               style={{ backgroundColor: col.hex }}
               className={`w-8 h-8 rounded-full transition-all duration-200 cursor-pointer flex items-center justify-center shadow-sm ${
-                currentPrimary === col.hex ? "ring-4 ring-blue-500/30 scale-110" : "hover:scale-105"
+                currentPrimary === col.hex ? "ring-4 ring-[#C87858]/40 scale-110" : "hover:scale-105"
               }`}
               title={col.name}
             />
@@ -100,27 +100,27 @@ export default function StyleInspector({
             type="color"
             value={currentPrimary}
             onChange={(e) => onChange({ ...themeTokens, primaryColor: e.target.value })}
-            className="w-8 h-8 rounded-full border border-slate-200 p-0 cursor-pointer overflow-hidden"
-            title="Custom Color"
+            className="w-8 h-8 rounded-full cursor-pointer bg-transparent border-none p-0 overflow-hidden"
+            title="Custom Hex Picker"
           />
         </div>
       </div>
 
-      {/* Corner Radius Token */}
+      {/* Border Radius Token */}
       <div className="space-y-3">
-        <label className="text-xs font-bold text-slate-800 flex items-center gap-2">
-          <Circle className="w-4 h-4 text-blue-600" />
+        <label className="text-xs font-bold text-[#282824] flex items-center gap-2">
+          <Circle className="w-4 h-4 text-[#C87858]" />
           {t(locale, "inspector.radius")}
         </label>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
           {RADIUS_OPTIONS.map((opt) => (
             <button
               key={opt.id}
               onClick={() => onChange({ ...themeTokens, radius: opt.id })}
-              className={`px-3 py-2 text-xs font-semibold rounded-xl border transition cursor-pointer text-center ${
+              className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer text-center ${
                 currentRadius === opt.id
-                  ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                  : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                  ? "bg-[#C87858] text-white shadow-md shadow-[#C87858]/20"
+                  : "bg-[#F0F0E8] hover:bg-[#E8E0D0] text-[#282824] border border-[#D8D8D0]"
               }`}
             >
               {opt.label}
@@ -129,10 +129,10 @@ export default function StyleInspector({
         </div>
       </div>
 
-      {/* Font Scale Token */}
+      {/* Typography Scale Token */}
       <div className="space-y-3">
-        <label className="text-xs font-bold text-slate-800 flex items-center gap-2">
-          <Type className="w-4 h-4 text-blue-600" />
+        <label className="text-xs font-bold text-[#282824] flex items-center gap-2">
+          <Type className="w-4 h-4 text-[#C87858]" />
           {t(locale, "inspector.fontScale")}
         </label>
         <div className="grid grid-cols-3 gap-2">
@@ -140,10 +140,10 @@ export default function StyleInspector({
             <button
               key={opt.id}
               onClick={() => onChange({ ...themeTokens, fontScale: opt.id })}
-              className={`px-3 py-2 text-xs font-semibold rounded-xl border transition cursor-pointer text-center ${
+              className={`py-2 px-3 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer text-center ${
                 currentFontScale === opt.id
-                  ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                  : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                  ? "bg-[#C87858] text-white shadow-md shadow-[#C87858]/20"
+                  : "bg-[#F0F0E8] hover:bg-[#E8E0D0] text-[#282824] border border-[#D8D8D0]"
               }`}
             >
               {opt.label}

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import Anthropic from "@anthropic-ai/sdk";
+import fs from "fs";
+import path from "path";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { checkRateLimit } from "@/lib/rateLimit";
@@ -191,16 +193,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: validation.message }, { status: 400, headers: corsHeaders });
     }
 
-    const userGeminiKey = body.geminiApiKey || body.geminiKey || req.headers.get("x-gemini-key");
-    const userAnthropicKey =
+    const userGeminiKey = (
+      body.geminiApiKey ||
+      body.geminiKey ||
+      req.headers.get("x-gemini-key") ||
+      ""
+    ).trim().replace(/^["']|["']$/g, "");
+
+    const envGeminiKey = (
+      process.env.GEMINI_API_KEY ||
+      process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
+      ""
+    ).trim().replace(/^["']|["']$/g, "");
+
+    const userAnthropicKey = (
       body.anthropicApiKey ||
       body.anthropicKey ||
       body.apiKey ||
       req.headers.get("x-anthropic-key") ||
-      req.headers.get("x-api-key");
+      req.headers.get("x-api-key") ||
+      ""
+    ).trim();
 
-    const geminiKey = userGeminiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-    const apiKey = userAnthropicKey || process.env.ANTHROPIC_API_KEY;
+    const geminiKey = userGeminiKey || envGeminiKey;
+    const apiKey = userAnthropicKey || process.env.ANTHROPIC_API_KEY || "";
 
     let themePrompt = "";
     if (themeTokens.primaryColor || themeTokens.radius || themeTokens.fontScale) {
@@ -211,9 +227,57 @@ export async function POST(req: NextRequest) {
 
     const targetLangPrompt = `TARGET FRAMEWORK / LANGUAGE: ${targetLanguage}.${themePrompt} Ensure the generated code strictly follows ${targetLanguage} conventions.`;
 
+    let lastGeminiError: string | null = null;
+
     // 1. Streaming AI Endpoint with Google Gemini (generateContentStream)
-    if (geminiKey && !geminiKey.includes("your-key-here") && geminiKey.length > 15 && geminiKey.startsWith("AIzaSy")) {
-      const candidateModels = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash-exp"];
+    if (geminiKey && !geminiKey.includes("your-key-here") && geminiKey.length > 8) {
+      // Auto-persist key to local .env file so it never gets lost
+      if (userGeminiKey && (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.length < 8)) {
+        try {
+          const envPath = path.join(process.cwd(), ".env");
+          if (fs.existsSync(envPath)) {
+            let envContent = fs.readFileSync(envPath, "utf-8");
+            envContent = envContent.replace(/GEMINI_API_KEY=".*"/g, `GEMINI_API_KEY="${userGeminiKey}"`);
+            envContent = envContent.replace(/GOOGLE_GENERATIVE_AI_API_KEY=".*"/g, `GOOGLE_GENERATIVE_AI_API_KEY="${userGeminiKey}"`);
+            fs.writeFileSync(envPath, envContent, "utf-8");
+            process.env.GEMINI_API_KEY = userGeminiKey;
+            process.env.GOOGLE_GENERATIVE_AI_API_KEY = userGeminiKey;
+          }
+        } catch (e) {
+          console.warn("Could not auto-write to .env:", e);
+        }
+      }
+
+      // Default models to try, starting with the recommended gemini-3.6-flash
+      let candidateModels = [
+        "gemini-3.6-flash",
+        "gemini-2.5-flash",
+        "gemini-2.0-flash",
+        "gemini-1.5-flash",
+        "gemini-1.5-pro",
+      ];
+
+      // Query Google's ListModels endpoint in real time to fetch valid models for this exact API key
+      try {
+        const listRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models?key=${geminiKey}`
+        );
+        if (listRes.ok) {
+          const listData = await listRes.json();
+          const available: string[] = (listData.models || [])
+            .filter((m: any) => m.supportedGenerationMethods?.includes("generateContent"))
+            .map((m: any) => m.name.replace("models/", ""));
+          if (available.length > 0) {
+            const flashModels = available.filter((m) => m.includes("flash"));
+            const otherModels = available.filter((m) => !m.includes("flash"));
+            candidateModels = [...flashModels, ...otherModels];
+            console.log("Dynamically discovered supported models for this key:", candidateModels);
+          }
+        }
+      } catch (listErr) {
+        console.warn("Could not fetch ListModels dynamically:", listErr);
+      }
+
       const genAI = new GoogleGenerativeAI(geminiKey);
       const userMsg =
         existingCode && existingCode.length > 50
@@ -244,7 +308,8 @@ export async function POST(req: NextRequest) {
                   }
                 }
                 controller.close();
-              } catch (err) {
+              } catch (err: any) {
+                console.error(`Streaming error with model ${modelName}:`, err);
                 controller.error(err);
               }
             },
@@ -258,12 +323,34 @@ export async function POST(req: NextRequest) {
             },
           });
         } catch (err: any) {
-          console.warn(`Model ${modelName} stream failed:`, err?.message || err);
+          lastGeminiError = err?.message || String(err);
+          console.warn(`Model ${modelName} stream failed:`, lastGeminiError);
         }
       }
     }
 
-    // 2. Fallback Streaming Code Generator (Ensures UI real-time streaming works 100%)
+    // If a Gemini Key was provided but Google API failed:
+    if (geminiKey && lastGeminiError) {
+      return NextResponse.json(
+        {
+          error: `Google Gemini API Error: ${lastGeminiError}. Please check your API key validity and quota at Google AI Studio.`,
+        },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    // If no key was provided at all:
+    if (!geminiKey) {
+      return NextResponse.json(
+        {
+          error:
+            "No Google Gemini API Key configured. Please enter your API key in Settings (⚙️) or add GEMINI_API_KEY in your .env file to generate custom AI websites.",
+        },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    // 2. Fallback Streaming Code Generator (only if explicitly requested or local mock)
     const fallbackCode = generateDynamicWebsiteCode(prompt, themeTokens);
     const fallbackStream = createChunkedStream(fallbackCode);
 
@@ -276,15 +363,9 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("Generation Engine Error:", error);
-    const fallbackCode = generateDynamicWebsiteCode("Local Business");
-    const fallbackStream = createChunkedStream(fallbackCode);
-
-    return new Response(fallbackStream, {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "text/plain; charset=utf-8",
-        "Transfer-Encoding": "chunked",
-      },
-    });
+    return NextResponse.json(
+      { error: error?.message || "Internal server error occurred during code generation." },
+      { status: 500, headers: corsHeaders }
+    );
   }
 }
