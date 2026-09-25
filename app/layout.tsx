@@ -5,9 +5,9 @@ export const metadata: Metadata = {
   title: "DevForge AI - Workspace",
   description: "AI-Powered React Component Builder with Google Gemini AI",
   icons: {
-    icon: "/favicon.png",
-    shortcut: "/favicon.png",
-    apple: "/favicon.png",
+    icon: "/favicon-theme.svg",
+    shortcut: "/favicon-theme.svg",
+    apple: "/favicon-theme.svg",
   },
 };
 
@@ -19,8 +19,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.png" type="image/png" />
-        <link rel="shortcut icon" href="/favicon.png" type="image/png" />
+        <link rel="icon" href="/favicon-theme.svg" type="image/svg+xml" />
+        <link rel="shortcut icon" href="/favicon-theme.svg" type="image/svg+xml" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

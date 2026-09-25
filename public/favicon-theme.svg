@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 736 736">
+  <defs>
+    <filter id="theme-color" color-interpolation-filters="sRGB">
+      <feColorMatrix type="matrix" values="0.262 0 0 0 0.738
+                     0 0.702 0 0 0.298
+                     0 0 2.608 0 -1.608
+                                             0 0 0 1 0" />
+    </filter>
+  </defs>
+  <image href="/favicon.png" width="736" height="736" filter="url(#theme-color)" />
+</svg>
